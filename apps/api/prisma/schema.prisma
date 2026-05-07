@@ -1,0 +1,148 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  MANAGER
+  VIEWER
+}
+
+enum FormStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+enum QuestionType {
+  SHORT_TEXT
+  LONG_TEXT
+  SINGLE_CHOICE
+  MULTI_CHOICE
+  RATING
+  NPS
+  DATE
+}
+
+model User {
+  id          String   @id @default(cuid())
+  firebaseUid String   @unique @map("firebase_uid")
+  email       String   @unique
+  name        String
+  avatarUrl   String?  @map("avatar_url")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  memberships  WorkspaceMember[]
+  createdForms Form[]
+
+  @@map("users")
+}
+
+model Workspace {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  logoUrl   String?  @map("logo_url")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  members WorkspaceMember[]
+  forms   Form[]
+
+  @@map("workspaces")
+}
+
+model WorkspaceMember {
+  id       String   @id @default(cuid())
+  role     Role     @default(VIEWER)
+  joinedAt DateTime @default(now()) @map("joined_at")
+
+  userId      String    @map("user_id")
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  workspaceId String    @map("workspace_id")
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workspaceId])
+  @@map("workspace_members")
+}
+
+model Form {
+  id          String     @id @default(cuid())
+  title       String
+  description String?
+  status      FormStatus @default(DRAFT)
+  isAnonymous Boolean    @default(false) @map("is_anonymous")
+  settings    Json       @default("{}")
+  publishedAt DateTime?  @map("published_at")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  workspaceId String    @map("workspace_id")
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  createdById String @map("created_by_id")
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  questions Question[]
+  responses Response[]
+
+  @@map("forms")
+}
+
+model Question {
+  id          String       @id @default(cuid())
+  title       String
+  description String?
+  type        QuestionType
+  required    Boolean      @default(false)
+  order       Int
+  options     Json?
+  settings    Json         @default("{}")
+  createdAt   DateTime     @default(now()) @map("created_at")
+
+  formId String @map("form_id")
+  form   Form   @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  answers Answer[]
+
+  @@map("questions")
+}
+
+model Response {
+  id          String   @id @default(cuid())
+  isAnonymous Boolean  @default(false) @map("is_anonymous")
+  metadata    Json     @default("{}")
+  submittedAt DateTime @default(now()) @map("submitted_at")
+
+  formId       String @map("form_id")
+  form         Form   @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  respondentId String? @map("respondent_id")
+
+  answers Answer[]
+
+  @@map("responses")
+}
+
+model Answer {
+  id        String   @id @default(cuid())
+  value     Json
+  createdAt DateTime @default(now()) @map("created_at")
+
+  responseId String   @map("response_id")
+  response   Response @relation(fields: [responseId], references: [id], onDelete: Cascade)
+
+  questionId String   @map("question_id")
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@map("answers")
+}
