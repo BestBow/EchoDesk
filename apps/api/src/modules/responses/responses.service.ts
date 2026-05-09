@@ -36,7 +36,7 @@ export class ResponsesService {
         formId: dto.formId,
         isAnonymous: dto.isAnonymous ?? form.isAnonymous,
         respondentId: dto.isAnonymous ? null : dto.respondentId,
-        metadata: dto.metadata ?? {},
+        metadata: (dto.metadata ?? {}) as any,
         answers: {
           create: dto.answers.map((a) => ({
             questionId: a.questionId,

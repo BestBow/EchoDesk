@@ -6,13 +6,16 @@ import Groq from 'groq-sdk'
 @Injectable()
 export class AnalyticsService {
   private readonly logger = new Logger(AnalyticsService.name)
-  private groq: Groq
+  private groq: Groq | null = null
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
   ) {
-    this.groq = new Groq({ apiKey: this.config.get('GROQ_API_KEY') })
+    const apiKey = this.config.get('GROQ_API_KEY')
+    if (apiKey) {
+      this.groq = new Groq({ apiKey })
+    }
   }
 
   async getFormAnalytics(formId: string) {
@@ -43,6 +46,9 @@ export class AnalyticsService {
   }
 
   async getAiSummary(formId: string) {
+    if (!this.groq) {
+      return { summary: 'AI summaries not configured — add GROQ_API_KEY to enable.' }
+    }
     const responses = await this.prisma.response.findMany({
       where: { formId },
       include: { answers: { include: { question: true } } },
