@@ -54,7 +54,7 @@ Think of it as a lightweight Typeform + Hotjar + Notion, built specifically for 
 ---
 
 ## Architecture
-echodesk/
+```echodesk/
 ├── apps/
 │   ├── web/                  # Next.js 14 frontend → Vercel
 │   │   └── src/
@@ -68,8 +68,9 @@ echodesk/
 │           └── prisma/       # Database service
 └── packages/
 └── types/                # Shared TypeScript types
-
+```
 ### Request flow
+```
 Browser → Next.js (Vercel)
 ↓
 Firebase Auth  →  ID Token
@@ -83,7 +84,7 @@ Groq API (AI summaries)
 Cloudinary (file storage)
 ↓
 Slack API (notifications)
-
+```
 ---
 
 ## Tech Stack 
