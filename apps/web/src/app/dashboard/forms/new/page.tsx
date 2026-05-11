@@ -335,4 +335,4 @@ export default function NewFormPage() {
       </form>
     </div>
   )
-}
+}export const dynamic = 'force-dynamic'

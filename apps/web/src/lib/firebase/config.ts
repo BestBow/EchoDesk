@@ -7,6 +7,12 @@ const firebaseConfig = {
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID!,
 }
 
-const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp()
-export const auth = getAuth(app)
-export default app
+let auth: ReturnType<typeof getAuth>
+
+if (typeof window !== 'undefined') {
+  const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp()
+  auth = getAuth(app)
+}
+
+export { auth }
+export default firebaseConfig

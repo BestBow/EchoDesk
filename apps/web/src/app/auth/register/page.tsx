@@ -130,4 +130,4 @@ export default function RegisterPage() {
       </div>
     </div>
   )
-}
+}export const dynamic = 'force-dynamic'
