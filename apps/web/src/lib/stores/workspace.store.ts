@@ -1,7 +1,6 @@
 'use client'
 
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
 
 interface Workspace {
   id: string
@@ -19,17 +18,12 @@ interface WorkspaceStore {
   clearWorkspaces: () => void
 }
 
-export const useWorkspaceStore = create<WorkspaceStore>()(
-  persist(
-    (set) => ({
-      workspaces: [],
-      currentWorkspace: null,
-      setWorkspaces: (workspaces) => set({ workspaces }),
-      setCurrentWorkspace: (workspace) => set({ currentWorkspace: workspace }),
-      clearWorkspaces: () => set({ workspaces: [], currentWorkspace: null }),
-    }),
-    {
-      name: 'echodesk-workspace',
-    },
-  ),
-)
+const useWorkspaceStoreBase = create<WorkspaceStore>()((set) => ({
+  workspaces: [],
+  currentWorkspace: null,
+  setWorkspaces: (workspaces) => set({ workspaces }),
+  setCurrentWorkspace: (workspace) => set({ currentWorkspace: workspace }),
+  clearWorkspaces: () => set({ workspaces: [], currentWorkspace: null }),
+}))
+
+export const useWorkspaceStore = useWorkspaceStoreBase

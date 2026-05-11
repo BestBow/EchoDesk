@@ -9,6 +9,8 @@ import { api } from '@/lib/api/client'
 import { useWorkspaceStore } from '@/lib/stores/workspace.store'
 import { formatDate } from '@/lib/utils'
 
+export const dynamic = 'force-dynamic'
+
 export default function FormDetailPage() {
   const params = useParams()
   const { currentWorkspace } = useWorkspaceStore()

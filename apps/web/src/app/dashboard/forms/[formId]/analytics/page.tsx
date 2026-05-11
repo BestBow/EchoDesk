@@ -18,6 +18,8 @@ import {
 import { api } from '@/lib/api/client'
 import { useWorkspaceStore } from '@/lib/stores/workspace.store'
 
+export const dynamic = 'force-dynamic'
+
 const COLORS = ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#ec4899']
 
 export default function FormAnalyticsPage() {
