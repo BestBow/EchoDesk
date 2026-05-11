@@ -13,6 +13,11 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  experimental: {
+    outputFileTracingExcludes: {
+      '*': ['node_modules/@swc/core*'],
+    },
+  },
 }
 
 module.exports = nextConfig
