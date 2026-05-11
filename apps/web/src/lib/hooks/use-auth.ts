@@ -11,7 +11,7 @@ import {
   User as FirebaseUser,
 } from 'firebase/auth'
 import { auth } from '../firebase/config'
-import { api } from '../api/client'
+import apiClient from '../api/client'
 
 interface AuthUser {
   id: string
@@ -29,15 +29,16 @@ export function useAuth() {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         try {
-          const idToken = await firebaseUser.getIdToken()
-          const { data } = await api.auth.exchange(idToken)
-          localStorage.setItem('echodesk_token', data.accessToken)
+          const idToken = await firebaseUser.getIdToken(true)
+          const { data } = await apiClient.post('/auth/exchange', { idToken })
+          window.localStorage.setItem('echodesk_token', data.accessToken)
           setUser({ ...data.user, firebaseUser })
-        } catch {
+        } catch (err: any) {
+          console.error('Exchange failed:', err?.response?.data ?? err?.message)
           setUser(null)
         }
       } else {
-        localStorage.removeItem('echodesk_token')
+        window.localStorage.removeItem('echodesk_token')
         setUser(null)
       }
       setLoading(false)
@@ -47,26 +48,20 @@ export function useAuth() {
   }, [])
 
   const loginWithEmail = async (email: string, password: string) => {
-    const result = await signInWithEmailAndPassword(auth, email, password)
-    return result
+    return signInWithEmailAndPassword(auth, email, password)
   }
 
-  const registerWithEmail = async (
-    email: string,
-    password: string,
-  ) => {
-    const result = await createUserWithEmailAndPassword(auth, email, password)
-    return result
+  const registerWithEmail = async (email: string, password: string) => {
+    return createUserWithEmailAndPassword(auth, email, password)
   }
 
   const loginWithGoogle = async () => {
     const provider = new GoogleAuthProvider()
-    const result = await signInWithPopup(auth, provider)
-    return result
+    return signInWithPopup(auth, provider)
   }
 
   const logout = async () => {
-    localStorage.removeItem('echodesk_token')
+    window.localStorage.removeItem('echodesk_token')
     await signOut(auth)
     setUser(null)
   }

@@ -19,7 +19,7 @@ export default function FormsPage() {
     api.forms.list(currentWorkspace.id).then(({ data }) => {
       setForms(data)
       setLoading(false)
-    })
+    }).catch(() => setLoading(false))
   }, [currentWorkspace])
 
   const handleDelete = async (formId: string) => {
@@ -41,7 +41,7 @@ export default function FormsPage() {
       setForms((prev) =>
         prev.map((f) => (f.id === formId ? { ...f, status: 'ACTIVE' } : f)),
       )
-      toast.success('Form published — now accepting responses')
+      toast.success('Form published')
     } catch {
       toast.error('Failed to publish form')
     }
@@ -56,7 +56,7 @@ export default function FormsPage() {
             {forms.length} form{forms.length !== 1 ? 's' : ''}
           </p>
         </div>
-        ink
+        <Link
           href="/dashboard/forms/new"
           className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium hover:opacity-90 transition-opacity"
         >
@@ -103,20 +103,18 @@ export default function FormsPage() {
                 <p className="text-xs text-muted-foreground">
                   {form._count?.responses ?? 0} responses ·{' '}
                   {form.questions?.length ?? 0} questions ·{' '}
-                {formatRelativeTime(form.createdAt)}
+                  {formatRelativeTime(form.createdAt)}
                 </p>
               </div>
 
               <div className="flex items-center gap-2 shrink-0">
-                <span
-                  className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                    form.status === 'ACTIVE'
-                      ? 'bg-green-100 text-green-700'
-                      : form.status === 'DRAFT'
-                        ? 'bg-gray-100 text-gray-600'
-                        : 'bg-yellow-100 text-yellow-700'
-                  }`}
-                >
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                  form.status === 'ACTIVE'
+                    ? 'bg-green-100 text-green-700'
+                    : form.status === 'DRAFT'
+                    ? 'bg-gray-100 text-gray-600'
+                    : 'bg-yellow-100 text-yellow-700'
+                }`}>
                   {form.status.toLowerCase()}
                 </span>
 

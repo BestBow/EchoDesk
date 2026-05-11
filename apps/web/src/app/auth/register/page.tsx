@@ -26,13 +26,11 @@ type RegisterForm = z.infer<typeof registerSchema>
 export default function RegisterPage() {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
-  const { registerWithEmail, loginWithGoogle } = useAuth()
+  const { registerWithEmail } = useAuth()
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<RegisterForm>({ resolver: zodResolver(registerSchema) })
+  const { register, handleSubmit, formState: { errors } } = useForm<RegisterForm>({
+    resolver: zodResolver(registerSchema),
+  })
 
   const onSubmit = async (data: RegisterForm) => {
     setLoading(true)
@@ -40,6 +38,7 @@ export default function RegisterPage() {
       const result = await registerWithEmail(data.email, data.password)
       await updateProfile(result.user, { displayName: data.name })
       toast.success('Account created! Welcome to EchoDesk.')
+      await new Promise((resolve) => setTimeout(resolve, 2000))
       router.push('/dashboard')
     } catch (err: any) {
       const msg =
@@ -47,7 +46,6 @@ export default function RegisterPage() {
           ? 'An account with this email already exists'
           : 'Registration failed. Please try again.'
       toast.error(msg)
-    } finally {
       setLoading(false)
     }
   }
@@ -76,9 +74,7 @@ export default function RegisterPage() {
                 placeholder="John Smith"
                 className="w-full border rounded-md px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-ring"
               />
-              {errors.name && (
-                <p className="text-destructive text-xs mt-1">{errors.name.message}</p>
-              )}
+              {errors.name && <p className="text-destructive text-xs mt-1">{errors.name.message}</p>}
             </div>
 
             <div>
@@ -89,9 +85,7 @@ export default function RegisterPage() {
                 placeholder="you@company.com"
                 className="w-full border rounded-md px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-ring"
               />
-              {errors.email && (
-                <p className="text-destructive text-xs mt-1">{errors.email.message}</p>
-              )}
+              {errors.email && <p className="text-destructive text-xs mt-1">{errors.email.message}</p>}
             </div>
 
             <div>
@@ -102,9 +96,7 @@ export default function RegisterPage() {
                 placeholder="Min. 8 characters"
                 className="w-full border rounded-md px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-ring"
               />
-              {errors.password && (
-                <p className="text-destructive text-xs mt-1">{errors.password.message}</p>
-              )}
+              {errors.password && <p className="text-destructive text-xs mt-1">{errors.password.message}</p>}
             </div>
 
             <div>
@@ -115,15 +107,13 @@ export default function RegisterPage() {
                 placeholder="••••••••"
                 className="w-full border rounded-md px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-ring"
               />
-              {errors.confirmPassword && (
-                <p className="text-destructive text-xs mt-1">{errors.confirmPassword.message}</p>
-              )}
+              {errors.confirmPassword && <p className="text-destructive text-xs mt-1">{errors.confirmPassword.message}</p>}
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-primary text-primary-foreground rounded-md py-2.5 text-sm font-medium hover:opacity-90 transition-opacity d50 flex items-center justify-center gap-2"
+              className="w-full bg-primary text-primary-foreground rounded-md py-2.5 text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
               Create account

@@ -35,6 +35,7 @@ export default function LoginPage() {
     setLoading(true)
     try {
       await loginWithEmail(data.email, data.password)
+      await new Promise((resolve) => setTimeout(resolve, 2000))
       router.push('/dashboard')
     } catch (err: any) {
       const msg =
@@ -42,7 +43,6 @@ export default function LoginPage() {
           ? 'Invalid email or password'
           : 'Something went wrong. Please try again.'
       toast.error(msg)
-    } finally {
       setLoading(false)
     }
   }
@@ -51,10 +51,12 @@ export default function LoginPage() {
     setGoogleLoading(true)
     try {
       await loginWithGoogle()
+      await new Promise((resolve) => setTimeout(resolve, 2000))
       router.push('/dashboard')
-    } catch {
-      toast.error('Google sign-in failed. Please try again.')
-    } finally {
+    } catch (err: any) {
+      if (err.code !== 'auth/cancelled-popup-request') {
+        toast.error('Google sign-in failed. Try email/password instead.')
+      }
       setGoogleLoading(false)
     }
   }

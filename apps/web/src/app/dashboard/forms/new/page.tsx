@@ -14,7 +14,6 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent,
 } from '@dnd-kit/core'
 import {
   SortableContext,
@@ -71,14 +70,10 @@ function SortableQuestion({
     opacity: isDragging ? 0.5 : 1,
   }
 
-  const needsOptions = ['SINGLE_CHOICE', 'MULTI_CHOICE'].includes(tion.type)
+  const needsOptions = ['SINGLE_CHOICE', 'MULTI_CHOICE'].includes(question.type)
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      className="bg-card border rounded-lg p-4"
-    >
+    <div ref={setNodeRef} style={style} className="bg-card border rounded-lg p-4">
       <div className="flex items-start gap-3">
         <button
           {...attributes}
@@ -102,9 +97,7 @@ function SortableQuestion({
               className="border rounded-md px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-ring"
             >
               {QUESTION_TYPES.map((t) => (
-                <option key={t.value} value={t.value}>
-                  {t.label}
-                </option>
+                <option key={t.value} value={t.value}>{t.label}</option>
               ))}
             </select>
           </div>
@@ -135,11 +128,7 @@ function SortableQuestion({
                 </div>
               ))}
               <button
-                onClick={() =>
-                  onUpdate(question.id, {
-                    options: [...question.options, ''],
-                  })
-                }
+                onClick={() => onUpdate(question.id, { options: [...question.options, ''] })}
                 className="text-xs text-primary hover:underline"
               >
                 + Add option
@@ -155,10 +144,7 @@ function SortableQuestion({
               onChange={(e) => onUpdate(question.id, { required: e.target.checked })}
               className="rounded"
             />
-            <label
-              htmlFor={`required-${question.id}`}
-              className="text-xs text-muted-foreground"
-            >
+            <label htmlFor={`required-${question.id}`} className="text-xs text-muted-foreground">
               Required
             </label>
           </div>
@@ -181,43 +167,31 @@ export default function NewFormPage() {
   const [questions, setQuestions] = useState<Question[]>([])
   const [saving, setSaving] = useState(false)
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<FormValues>({ resolver: zodResolver(formSchema) })
+  const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+  })
 
   const sensors = useSensors(
     useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   )
 
   const addQuestion = () => {
     setQuestions((prev) => [
       ...prev,
-      {
-        id: crypto.randomUUID(),
-        title: '',
-        type: 'SHORT_TEXT',
-        required: false,
-        options: [],
-      },
+      { id: crypto.randomUUID(), title: '', type: 'SHORT_TEXT', required: false, options: [] },
     ])
   }
 
   const updateQuestion = (id: string, updates: Partial<Question>) => {
-    setQuestions((prev) =>
-      prev.map((q) => (q.id === id ? { ...q, ...updates } : q)),
-    )
+    setQuestions((prev) => prev.map((q) => (q.id === id ? { ...q, ...updates } : q)))
   }
 
   const deleteQuestion = (id: string) => {
     setQuestions((prev) => prev.filter((q) => q.id !== id))
   }
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = (event: any) => {
     const { active, over } = event
     if (over && active.id !== over.id) {
       setQuestions((items) => {
@@ -234,7 +208,6 @@ export default function NewFormPage() {
       toast.error('Add at least one question')
       return
     }
-
     setSaving(true)
     try {
       const { data: form } = await api.forms.create(currentWorkspace.id, {
@@ -259,9 +232,7 @@ export default function NewFormPage() {
     <div className="max-w-2xl mx-auto">
       <div className="mb-6">
         <h1 className="text-2xl font-semibold">Create form</h1>
-        <p className="text-muted-foreground text-sm mt-0.5">
-          Build your feedback form
-        </p>
+        <p className="text-muted-foreground text-sm mt-0.5">Build your feedback form</p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -280,8 +251,7 @@ export default function NewFormPage() {
 
           <div>
             <label className="text-sm font-medium mb-1.5 block">
-              Description{' '}
-              <span className="text-muted-foreground font-normal">(optional)</span>
+              Description <span className="text-muted-foreground font-normal">(optional)</span>
             </label>
             <textarea
               {...register('description')}
@@ -308,19 +278,15 @@ export default function NewFormPage() {
         </div>
 
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h2 className="font-medium text-sm">
-              Questions{' '}
-              <span className="text-muted-foreground font-normal">
-                ({questions.length})
-              </span>
-            </h2>
-          </div>
+          <h2 className="font-medium text-sm">
+            Questions{' '}
+            <span className="text-muted-foreground font-normal">({questions.length})</span>
+          </h2>
 
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
-            DragEnd={handleDragEnd}
+            onDragEnd={handleDragEnd}
           >
             <SortableContext
               items={questions.map((q) => q.id)}

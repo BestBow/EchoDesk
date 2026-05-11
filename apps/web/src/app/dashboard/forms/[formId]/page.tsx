@@ -3,15 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import {
-  ArrowLeft,
-  BarChart2,
-  Eye,
-  Loader2,
-  Play,
-  Pause,
-  Trash2,
-} from 'lucide-react'
+import { ArrowLeft, BarChart2, Eye, Loader2, Play, Pause } from 'lucide-react'
 import { toast } from 'sonner'
 import { api } from '@/lib/api/client'
 import { useWorkspaceStore } from '@/lib/stores/workspace.store'
@@ -19,7 +11,6 @@ import { formatDate } from '@/lib/utils'
 
 export default function FormDetailPage() {
   const params = useParams()
-  const router = useRouter()
   const { currentWorkspace } = useWorkspaceStore()
   const [form, setForm] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -27,12 +18,10 @@ export default function FormDetailPage() {
 
   useEffect(() => {
     if (!currentWorkspace || !params.formId) return
-    api.forms
-      .get(currentWorkspace.id, params.formId as string)
-      .then(({ data }) => {
-        setForm(data)
-        setLoading(false)
-      })
+    api.forms.get(currentWorkspace.id, params.formId as string).then(({ data }) => {
+      setForm(data)
+      setLoading(false)
+    })
   }, [currentWorkspace, params.formId])
 
   const handlePublish = async () => {
@@ -70,22 +59,20 @@ export default function FormDetailPage() {
 
   if (!form) return null
 
-  const shareUrl = `${window.location.origin}/f/${form.id}`
+  const shareUrl = typeof window !== 'undefined'
+    ? `${window.location.origin}/f/${form.id}`
+    : ''
 
   return (
     <div className="max-w-3xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
-        <Link
-          href="/dashboard/forms"
-          className="text-muted-foreground hover:text-foreground"
-        >
+        <Link href="/dashboard/forms" className="text-muted-foreground hover:text-foreground">
           <ArrowLeft className="w-4 h-4" />
         </Link>
         <div className="flex-1 min-w-0">
           <h1 className="text-2xl font-semibold truncate">{form.title}</h1>
           <p className="text-muted-foreground text-sm mt-0.5">
-            Created {formatDate(form.createdAt)} ·{' '}
-            {form._count?.responses ?? 0} responses
+            Created {formatDate(form.createdAt)} · {form._count?.responses ?? 0} responses
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -96,7 +83,7 @@ export default function FormDetailPage() {
             <BarChart2 className="w-3.5 h-3.5" />
             Analytics
           </Link>
-         <Link
+          <Link
             href={`/f/${form.id}`}
             target="_blank"
             className="flex items-center gap-1.5 px-3 py-1.5 border rounded-md text-sm hover:bg-accent transition-colors"
@@ -129,11 +116,9 @@ export default function FormDetailPage() {
         </div>
       </div>
 
-      {form.status === 'ACTIVE' && (
+      {form.status === 'ACTIVE' && shareUrl && (
         <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-          <p className="text-sm font-medium text-green-800 mb-1">
-            Form is live
-          </p>
+          <p className="text-sm font-medium text-green-800 mb-1">Form is live</p>
           <div className="flex items-center gap-2">
             <code className="text-xs bg-white border border-green-200 rounded px-2 py-1 flex-1 truncate text-green-700">
               {shareUrl}
@@ -175,10 +160,7 @@ export default function FormDetailPage() {
                   {question.options && question.options.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 mt-2">
                       {question.options.map((opt: string) => (
-                        <span
-                          key={opt}
-                          className="text-xs bg-muted px-2 py-0.5 rounded-full"
-                        >
+                        <span key={opt} className="text-xs bg-muted px-2 py-0.5 rounded-full">
                           {opt}
                         </span>
                       ))}

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { Loader2, CheckCircle, MessageSquare } from 'lucide-react'
 import { api } from '@/lib/api/client'
@@ -20,9 +19,7 @@ export default function PublicFormPage() {
     api.forms.getPublic(formId).then(({ data }) => {
       setForm(data)
       setLoading(false)
-    }).catch(() => {
-      setLoading(false)
-    })
+    }).catch(() => setLoading(false))
   }, [formId])
 
   const handleAnswer = (questionId: string, value: any) => {
@@ -31,22 +28,17 @@ export default function PublicFormPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
     const required = form.questions.filter((q: any) => q.required)
     const missing = required.filter((q: any) => !answers[q.id] && answers[q.id] !== 0)
     if (missing.length > 0) {
-      toast.error(`Please answer all required questions`)
+      toast.error('Please answer all required questions')
       return
     }
-
     setSubmitting(true)
     try {
       await api.responses.submit({
         formId,
-        answers: Object.entries(answers).map(([questionId, value]) => ({
-          questionId,
-          value,
-        })),
+        answers: Object.entries(answers).map(([questionId, value]) => ({ questionId, value })),
         isAnonymous: form.isAnonymous,
       })
       setSubmitted(true)
@@ -70,9 +62,7 @@ export default function PublicFormPage() {
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="text-center">
           <p className="text-lg font-medium mb-2">Form not found</p>
-          <p className="text-muted-foreground text-sm">
-            This form may no longer be active.
-          </p>
+          <p className="text-muted-foreground text-sm">This form may no longer be active.</p>
         </div>
       </div>
     )
@@ -84,9 +74,7 @@ export default function PublicFormPage() {
         <div className="text-center max-w-sm">
           <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-4" />
           <h1 className="text-xl font-semibold mb-2">Thank you!</h1>
-          <p className="text-muted-foreground text-sm">
-            Your response has been recorded.
-          </p>
+          <p className="text-muted-foreground text-sm">Your response has been recorded.</p>
         </div>
       </div>
     )
@@ -104,9 +92,7 @@ export default function PublicFormPage() {
 
         <div className="mb-8">
           <h1 className="text-2xl font-semibold mb-2">{form.title}</h1>
-          {form.description && (
-            <p className="text-muted-foreground">{form.description}</p>
-          )}
+          {form.description && <p className="text-muted-foreground">{form.description}</p>}
           {form.isAnonymous && (
             <p className="text-xs text-muted-foreground mt-2 bg-muted px-3 py-1.5 rounded-md inline-block">
               Your response is anonymous
@@ -119,9 +105,7 @@ export default function PublicFormPage() {
             <div key={question.id} className="bg-card border rounded-lg p-5">
               <label className="block text-sm font-medium mb-3">
                 {index + 1}. {question.title}
-                {question.required && (
-                  <span className="text-destructive ml-1">*</span>
-                )}
+                {question.required && <span className="text-destructive ml-1">*</span>}
               </label>
 
               {question.type === 'SHORT_TEXT' && (
@@ -146,10 +130,7 @@ export default function PublicFormPage() {
               {question.type === 'SINGLE_CHOICE' && (
                 <div className="space-y-2">
                   {question.options?.map((opt: string) => (
-                    <label
-                      key={opt}
-                      className="flex items-center gap-2.5 cursor-pointer group"
-                    >
+                    <label key={opt} className="flex items-center gap-2.5 cursor-pointer">
                       <input
                         type="radio"
                         name={question.id}
@@ -158,9 +139,7 @@ export default function PublicFormPage() {
                         onChange={() => handleAnswer(question.id, opt)}
                         className="w-4 h-4"
                       />
-                      <span className="text-sm group-hover:text-foreground text-muted-foreground">
-                        {opt}
-                      </span>
+                      <span className="text-sm text-muted-foreground">{opt}</span>
                     </label>
                   ))}
                 </div>
@@ -171,10 +150,7 @@ export default function PublicFormPage() {
                   {question.options?.map((opt: string) => {
                     const selected: string[] = answers[question.id] ?? []
                     return (
-                      <label
-                        key={opt}
-                        className="flex items-center gap-2.5 cursor-pointer group"
-                      >
+                      <label key={opt} className="flex items-center gap-2.5 cursor-pointer">
                         <input
                           type="checkbox"
                           checked={selected.includes(opt)}
@@ -186,9 +162,7 @@ export default function PublicFormPage() {
                           }}
                           className="w-4 h-4 rounded"
                         />
-                        <span className="text-sm group-hover:text-foreground text-muted-foreground">
-                          {opt}
-                        </span>
+                        <span className="text-sm text-muted-foreground">{opt}</span>
                       </label>
                     )
                   })}
@@ -233,12 +207,8 @@ export default function PublicFormPage() {
                     ))}
                   </div>
                   <div className="flex justify-between mt-2">
-                    <span className="text-xs text-muted-foreground">
-                      Not likely
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      Very likely
-                    </span>
+                    <span className="text-xs text-muted-foreground">Not likely</span>
+                    <span className="text-xs text-muted-foreground">Very likely</span>
                   </div>
                 </div>
               )}
