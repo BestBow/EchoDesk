@@ -136,4 +136,4 @@ export default function FormAnalyticsPage() {
       ))}
     </div>
   )
-}
+}export const dynamic = 'force-dynamic'

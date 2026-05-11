@@ -236,4 +236,4 @@ export default function PublicFormPage() {
       </div>
     </div>
   )
-}
+}export const dynamic = 'force-dynamic'
